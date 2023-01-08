@@ -2,41 +2,31 @@ $(document).ready(function () {
 
     //Hier hole ich mit moment.js das aktuelle Datum und berechne die Jahreswoche
     //Danach setze ich die Woche im Navigator 
-
-    // Get the current date
     var now = moment();
-
-    // Get the week number of the year
     var weekNumber = now.week();
-
-    // Get the year
     var year = now.year();
-
-    // Format the week number as a two-digit string (e.g. "01", "02", etc.)
     var weekNumberString = ('0' + weekNumber).slice(-2);
 
-    // Concatenate the week number and year in the format "ww-yyyy"
-    var woche = weekNumberString + '-' + year;
+    var woche = localStorage.getItem('woche');
+    if (woche) {
+        console.log(woche);
+    } else {
 
-    // Add the "woche" value to the local storage
-    localStorage.setItem('woche', woche);
+        var woche = weekNumberString + '-' + year;
+
+        localStorage.setItem('woche', woche);
+    }
+
+
 
     updateTable();
-
-    // Get the "woche" value from the local storage
-    var woche = localStorage.getItem('woche');
-
-    // If the "woche" value is not null, set the text of the element with the ID "aktuelle"
-    if (woche) {
-        $('#aktuelle').text(woche);
-    }
+    $('#aktuelle').text(woche);
 
     //Hier rufe ich mit einem API Call alle Berufe ab und füge diese als Auswahlmölichkeiten in das #select1 Formular
     //Wenn bereits ein Wert im LocalStorage gespeichert ist, wird dieser Wert ausgewählt
 
     $.getJSON('http://sandbox.gibm.ch/berufe.php', function (data) {
         if (!$.isEmptyObject(Array)) {
-            // Display an error message in an alert box
             window.alert('Error: No data was returned.');
         } else {
             $.each(data, function (i, item) {
@@ -44,16 +34,13 @@ $(document).ready(function () {
                     value: item.beruf_id,
                     text: item.beruf_name
                 }));
-                // Get the "klasseId" value from the local storage
                 var berufId = localStorage.getItem('berufId');
-                // If the "klasseId" value is not null, select the corresponding option in the dropdown menu
                 if (berufId) {
                     $('#select1').val(berufId);
                 }
             });
         }
     }).fail(function () {
-        // Display an error message in an alert box
         window.alert('Error: The request could not be completed.');
     });
 
@@ -70,24 +57,23 @@ $(document).ready(function () {
         //Hier rufe ich mit einem API Call alle Klassen ab, welche zu dem Parameter berufId passen und füge diese als Auswahlmöglichkeiten in das #select2 Formular
         $.getJSON(url, data, function (data) {
             if (!$.isEmptyObject(Array)) {
-                // Display an error message in an alert box
                 window.alert('Error: No data was returned.');
-              } else {
-            $('#select2').empty(); // clear the previous options
-            data.forEach(function (item) {
-                console.log(item)
-                $('#select2').append($('<option>', {
-                    value: item.klasse_id,
-                    text: item.klasse_longname
-                }));
-            });
-            klasseID = localStorage.getItem('klasseId');
-            if (klasseID) {
-                console.log(klasseID);
-                $('#select2').val(klasseID);
+            } else {
+                $('#select2').empty();
+                data.forEach(function (item) {
+                    console.log(item)
+                    $('#select2').append($('<option>', {
+                        value: item.klasse_id,
+                        text: item.klasse_longname
+                    }));
+                });
+                klasseID = localStorage.getItem('klasseId');
+                if (klasseID) {
+                    console.log(klasseID);
+                    $('#select2').val(klasseID);
+                }
             }
-        }}).fail(function () {
-            // Display an error message in an alert box
+        }).fail(function () {
             window.alert('Error: The request could not be completed.');
         });
     } else {
@@ -95,17 +81,16 @@ $(document).ready(function () {
         //Hier rufe ich mit einem API Call alle Klassen ab und füge diese als Auswahlmöglichkeiten in das #select2 Formular
         $.getJSON(url, function (data) {
             if (!$.isEmptyObject(Array)) {
-                // Display an error message in an alert box
                 window.alert('Error: No data was returned.');
-              } else {
-            data.forEach(function (item) {
-                $('#select2').append($('<option>', {
-                    value: item.klasse_id,
-                    text: item.klasse_longname
-                }));
-            });
-        }}).fail(function () {
-            // Display an error message in an alert box
+            } else {
+                data.forEach(function (item) {
+                    $('#select2').append($('<option>', {
+                        value: item.klasse_id,
+                        text: item.klasse_longname
+                    }));
+                });
+            }
+        }).fail(function () {
             window.alert('Error: The request could not be completed.');
         });
     }
@@ -114,7 +99,6 @@ $(document).ready(function () {
     //Daraufhin werden die Auswahlmöglichkeiten des #select2 Formular entfernt und durch einen API Call alle Klassen abgerufen, welche zu dem Parameter berufId passen und füge diese als Auswahlmöglichkeiten in das #select2 Formular
 
     $('#select1').change(function () {
-        // Update the "klasseId" value in the local storage
         localStorage.setItem('berufId', $(this).val());
         var berufId = $(this).val();
         var data = {};
@@ -123,19 +107,18 @@ $(document).ready(function () {
         }
         $.getJSON(url, data, function (data) {
             if (!$.isEmptyObject(Array)) {
-                // Display an error message in an alert box
                 window.alert('Error: No data was returned.');
-              } else {
-            $('#select2').empty(); // clear the previous options
-            data.forEach(function (item) {
-                console.log(item)
-                $('#select2').append($('<option>', {
-                    value: item.klasse_id,
-                    text: item.klasse_longname
-                }));
-            });
-        }}).fail(function () {
-            // Display an error message in an alert box
+            } else {
+                $('#select2').empty();
+                data.forEach(function (item) {
+                    console.log(item)
+                    $('#select2').append($('<option>', {
+                        value: item.klasse_id,
+                        text: item.klasse_longname
+                    }));
+                });
+            }
+        }).fail(function () {
             window.alert('Error: The request could not be completed.');
         });
     });
@@ -152,7 +135,6 @@ $(document).ready(function () {
     //Danach wird der Text im Navigator #aktuelle an die derzeitig ausgewählt Woche angepasst und der Wert woche im Local Storage gespeichert.
     //Dann wird die funktion updateTable() aufgerufen.
     $('#naechste').click(function () {
-        // Increment the week number
         weekNumber++;
         console.log(weekNumber)
         var wocheArray = validateWeek(weekNumber, year);
@@ -160,9 +142,7 @@ $(document).ready(function () {
         weekNumber = wocheArray[1];
         year = wocheArray[2];
         $('#aktuelle').html(woche);
-        // Update the "woche" value in the local storage
         localStorage.setItem('woche', woche);
-        // Update the table
         updateTable();
     });
 
@@ -170,7 +150,6 @@ $(document).ready(function () {
     //Danach wird der Text im Navigator #aktuelle an die derzeitig ausgewählt Woche angepasst und der Wert woche im Local Storage gespeichert.
     //Dann wird die funktion updateTable() aufgerufen.
     $('#letzte').click(function () {
-        // Decrement the week number
         weekNumber--;
         console.log(weekNumber)
         var wocheArray = validateWeek(weekNumber, year);
@@ -178,9 +157,7 @@ $(document).ready(function () {
         weekNumber = wocheArray[1];
         year = wocheArray[2];
         $('#aktuelle').html(woche);
-        // Update the "woche" value in the local storage
         localStorage.setItem('woche', woche);
-        // Update the table
         updateTable();
     });
 });
@@ -201,13 +178,10 @@ function validateWeek(weekNumber, year) {
         weekNumber = 52;
     }
 
-    // Format the week number as a two-digit string
     var weekNumberString = ('0' + weekNumber).slice(-2);
 
-    // Concatenate the week number and year in the format "ww-yyyy"
     var woche = weekNumberString + '-' + year;
 
-    // Return the "woche" value
     return [woche, weekNumber, year]
     woche;
 }
@@ -219,19 +193,15 @@ function validateWeek(weekNumber, year) {
 //Weiter in der Schlaufe werden die Elemente dann in die Tabelle eingefügt.
 
 function updateTable() {
-    // Get the "klasseId" and "woche" values from the local storage
     var klasseId = localStorage.getItem('klasseId');
     var woche = localStorage.getItem('woche');
 
     var apiUrl = 'http://sandbox.gibm.ch/tafel.php?klasse_id=' + encodeURIComponent(klasseId) + '&woche=' + encodeURIComponent(woche);
     console.log(apiUrl)
 
-    // Make the API call
     $.get(apiUrl, function (data) {
-        // Clear the table
         $('#kalender tbody').empty();
 
-        // Iterate over the data and append a table row for each item
         data.forEach(function (item) {
             var datum = item.tafel_datum;
             //Konvertiert die Nummer des Wochentag zu einem Integer
@@ -242,7 +212,6 @@ function updateTable() {
             var fach = item.tafel_fach;
             var raum = item.tafel_raum;
 
-            // Convert the wochentag number to the corresponding weekday name
             switch (wochentag) {
                 case 0:
                     wochentag = 'Sonntag';
